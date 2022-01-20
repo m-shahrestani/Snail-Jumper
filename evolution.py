@@ -1,5 +1,7 @@
 import copy
 
+import numpy as np
+
 from player import Player
 
 
@@ -20,7 +22,36 @@ class Evolution:
         # TODO (Additional: Implement SUS here)
 
         # TODO (Additional: Learning curve)
-        return players[: num_players]
+
+        fit_sum = 0
+        fit_avg = 0
+        fit_max = players[0].fitness
+        fit_min = players[0].fitness
+        for player in players:
+            fit_sum += player.fitness
+            if (player.fitness > fit_max):
+                fit_max = player.fitness
+            if (player.fitness < fit_min):
+                fit_min = player.fitness
+        fit_avg = fit_sum / len(players)
+        line = str(fit_min) + " " + str(fit_max) + " " + str(fit_avg) + "\n"
+        with open('curve_learning.txt', "a") as file:
+            file.write(line)
+
+        next_population = self.q_tournament(players, num_players)
+        return next_population
+        # return players[: num_players]
+
+    def q_tournament(self, players, num_players):
+        next_population = []
+        q = 2
+        for i in range(num_players):
+            temp_population = []
+            for j in range(q):
+                temp_population.append(players[np.random.randint(0, len(players))])
+            temp_population.sort(key=lambda x: x.fitness, reverse=True)
+            next_population.append(temp_population[0])
+        return next_population
 
     def generate_new_population(self, num_players, prev_players=None):
         """

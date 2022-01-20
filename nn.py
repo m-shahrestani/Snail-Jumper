@@ -11,7 +11,33 @@ class NeuralNetwork:
         3 neurons in the input layer, 10 neurons in the hidden layer, and 2 neurons in the output layer.
         """
         # TODO (Implement FCNNs architecture here)
-        pass
+        # layer_sizes example: [4, 10, 2]
+
+        self.layer_sizes = layer_sizes
+
+        #  contain the all weights of two layer
+        self.weights = []
+
+        #  contain the baiases of two layer
+        self.baises = []
+
+        # weight for the first layer
+        weight_first_layer = np.random.normal(size=(layer_sizes[1], layer_sizes[0]))
+        self.weights.append(weight_first_layer)
+
+        # weight for the second layer
+        weight_second_layer = np.random.normal(size=(layer_sizes[2], layer_sizes[1]))
+        self.weights.append(weight_second_layer)
+
+        # bias of the first layer
+        bais_first_layer = np.zeros((layer_sizes[1], 1))
+        # bais_first_layer = np.random.normal(size =(layer_sizes[1], 1))
+        self.baises.append(bais_first_layer)
+
+        # bias of the second layer
+        bais_second_layer = np.zeros((layer_sizes[2], 1))
+        # bais_second_layer = np.random.normal(size= (layer_sizes[2], 1))
+        self.baises.append(bais_second_layer)
 
     def activation(self, x):
         """
@@ -20,7 +46,7 @@ class NeuralNetwork:
         :return: Vector after applying activation function.
         """
         # TODO (Implement activation function here)
-        pass
+        return 1/(1 + np.exp(-x))
 
     def forward(self, x):
         """
@@ -29,4 +55,9 @@ class NeuralNetwork:
         :return: Output vector
         """
         # TODO (Implement forward function here)
-        pass
+        # x example: np.array([[0.1], [0.2], [0.3]])
+        hidden_layer = self.activation(self.weights[0] @ x + self.baises[0])
+
+        output_layer = self.activation(self.weights[1] @ hidden_layer + self.baises[1])
+
+        return output_layer

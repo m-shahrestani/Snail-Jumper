@@ -1,5 +1,6 @@
 import random
 
+import numpy as np
 import pygame
 from variables import global_variables
 from nn import NeuralNetwork
@@ -35,7 +36,7 @@ class Player(pygame.sprite.Sprite):
         if self.game_mode == "Neuroevolution":
             self.fitness = 0  # Initial fitness
 
-            layer_sizes = [3, 10, 2]  # TODO (Design your architecture here by changing the values)
+            layer_sizes = [4, 10, 2]  # TODO (Design your architecture here by changing the values)
             self.nn = NeuralNetwork(layer_sizes)
 
     def think(self, screen_width, screen_height, obstacles, player_x, player_y):
@@ -52,12 +53,53 @@ class Player(pygame.sprite.Sprite):
         :param player_y: 'y' position of the player
         """
         # TODO (change player's gravity here by calling self.change_gravity)
+        neuron = self.input_neuron(screen_width, screen_height, obstacles, player_x, player_y)
+        check = self.nn.forward(neuron)[0][0]
+        self.what_to_do(check)
 
-        # This is a test code that changes the gravity based on a random number. Remove it before your implementation.
-        if random.randint(0, 2):
-            self.change_gravity('left')
-        else:
+
+    def input_neuron(self, screen_width, screen_height, obstacles, player_x, player_y):
+        neuron = np.zeros((4, 1))
+        width = screen_width
+        height = screen_height
+
+        # distance x of the first obstacle and player
+        neuron[0] = 1
+        if (len(obstacles) > 0):
+            neuron[0] = (obstacles[0]['x'] - player_x) / width
+
+        # distance gap of the first obstacle and player
+        neuron[1] = 0
+        if (len(obstacles) > 0):
+            neuron[1] = (player_y - obstacles[0]['y']) / height
+
+        # distance x of the second obstacle and player
+        neuron[2] = 1
+        if (len(obstacles) > 1):
+            neuron[2] = (obstacles[1]['x'] - player_x) / width
+
+        # distance gap of the second obstacle and player
+        neuron[3] = 0
+        if (len(obstacles) > 1):
+            neuron[3] = (player_y - obstacles[1]['y']) / height
+
+        # distance x of the second obstacle and player
+        # neuron[4] = 1
+        # if (len(obstacles) > 2):
+        #     neuron[4] = (obstacles[2]['x'] - player_x) / width
+        #
+        # # distance gap of the second obstacle and player
+        # neuron[5] = 0
+        # if (len(obstacles) > 2):
+        #     neuron[5] = (player_y - obstacles[2]['y']) / height
+
+        return neuron
+
+    def what_to_do(self, check):
+        self.change_gravity('left')
+        if check > 0.5:
             self.change_gravity('right')
+
 
     def change_gravity(self, new_gravity):
         """
